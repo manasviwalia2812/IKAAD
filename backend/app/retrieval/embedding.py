@@ -1,0 +1,28 @@
+from typing import List, Any
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from sentence_transformers import SentenceTransformer
+import numpy as np
+from app.ingestion.loader import load_documents_from_directory
+
+class EmbeddingManager:
+  def __init__(self, model_name: str = "all-MiniLM-L6-v2", chunk_size: int = 1000, chunk_overlap: int = 200):
+    self.chunk_size = chunk_size
+    self.chunk_overlap = chunk_overlap
+    self.model = SentenceTransformer(model_name)
+    print(f"[INFO] Loading embedding model: {model_name}")
+
+  def chunk_documents(self,documents: List[Any])-> List[Any]:
+    """Chunk documents into smaller pieces for better embedding."""
+    splitter = RecursiveCharacterTextSplitter( chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap,length_function=len,
+    separators=["\n\n", "\n", " ", ""])
+
+    chunks = splitter.split_documents(documents)
+    print(f"[INFO] Chunked {len(documents)} documents into {len(chunks)} chunks.")
+    return chunks
+  
+  def embedding_chunks(self, chunks: List[Any]) -> np.ndarray:
+    """Generate embeddings for the document chunks."""
+    texts = [chunk.page_content for chunk in chunks]
+    print(f"[INFO] Generating embeddings for {len(texts)} chunks.")
+    embeddings = self.model.encode(texts, show_progress_bar=True)
+    return embeddings

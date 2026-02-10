@@ -1,3 +1,35 @@
+# =========================
+# Web framework
+# =========================
 fastapi
 uvicorn
-pydantic
+
+# =========================
+# LangChain (new split)
+# =========================
+langchain
+langchain-core
+langchain-community
+
+# =========================
+# Document loading
+# =========================
+pypdf
+
+# =========================
+# Embeddings
+# =========================
+sentence-transformers
+torch
+transformers
+
+# =========================
+# Vector store
+# =========================
+faiss-cpu
+
+# =========================
+# Utilities
+# =========================
+python-dotenv
+numpy
