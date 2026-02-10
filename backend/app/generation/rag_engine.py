@@ -72,3 +72,56 @@ Answer:
 
         response = self.llm.invoke(prompt)
         return response.content
+    
+    def answer_query_with_sources(self, query: str):
+      """
+      Perform RAG-based answering and return answer with sources and confidence.
+      """
+
+      results = self.vector_store.query(query, top_k=self.top_k)
+
+      if not results:
+          return {
+              "answer": "No relevant information found.",
+              "sources": [],
+              "confidence": 0.0
+          }
+
+      texts = []
+      sources = []
+
+      for r in results:
+          meta = r.get("metadata", {})
+          text = meta.get("text", "")
+          if text:
+              texts.append(text)
+              sources.append(text[:200])  # preview for now
+
+      context = "\n\n".join(texts)
+
+      prompt = f"""
+  You are an academic knowledge assistant.
+
+  Answer the question using ONLY the provided context.
+  If the answer is not present, say "I do not know".
+
+  Context:
+  {context}
+
+  Question:
+  {query}
+
+  Answer:
+  """
+
+      response = self.llm.invoke(prompt)
+
+      # Simple confidence heuristic (very explainable)
+      confidence = round(min(1.0, len(texts) / self.top_k), 2)
+
+      return {
+          "answer": response.content,
+          "sources": sources,
+          "confidence": confidence
+      }
+

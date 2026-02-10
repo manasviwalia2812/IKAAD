@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.routes import router
 from app.api.ingestion_routes import router as ingestion_router
+from app.api.query_routes import router as query_router
 
 app = FastAPI(
     title="IKAAD Backend API",
@@ -10,6 +11,7 @@ app = FastAPI(
 
 app.include_router(router)
 app.include_router(ingestion_router)
+app.include_router(query_router)
 
 @app.get("/health")
 def health_check():

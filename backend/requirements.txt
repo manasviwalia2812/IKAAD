@@ -10,6 +10,7 @@ uvicorn
 langchain
 langchain-core
 langchain-community
+langchain-groq
 
 # =========================
 # Document loading
