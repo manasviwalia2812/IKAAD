@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api/api";
+import { uploadPDFs } from "../api/api";
 
 function UploadPage() {
   const [files, setFiles] = useState([]);
@@ -28,27 +28,21 @@ function UploadPage() {
       setIsUploading(true);
       setStatus("Uploading and processing...");
 
-      const response = await api.post("/upload/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        timeout: 0,
-      });
+      const response = await uploadPDFs(formData);
 
-      // This line runs ONLY if the request succeeds
-      console.log("✅ Backend response:", response.data);
-      console.log("Full response object:", response);
-      
-      if (response.data.success) {
+      // response IS already response.data
+      console.log("✅ Backend response:", response);
+
+      if (response.success) {
         setStatus(
-          `Upload successful. ${response.data.documents_loaded} documents processed. You can now ask questions.`
+          `Upload successful. ${response.documents_loaded} documents processed. You can now ask questions.`
         );
       } else {
         setStatus(
-          `Upload failed on server: ${response.data.error || "Unknown error"}`
+          `Upload failed on server: ${response.error || "Unknown error"}`
         );
       }
-    } catch (error) {
+          } catch (error) {
       // ADD DETAILED LOGGING HERE
       console.error("❌ Error caught:", error);
       console.error("Error message:", error.message);
