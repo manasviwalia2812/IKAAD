@@ -24,6 +24,8 @@ data/
 backend/data/
 *.pdf
 *.npy
+uploads/
+backend/uploads/
 
 # =====================
 # OS / Editor junk
@@ -32,3 +34,4 @@ backend/data/
 Thumbs.db
 .vscode/
 .idea/
+

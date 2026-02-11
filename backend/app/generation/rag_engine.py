@@ -18,12 +18,11 @@ class RAGEngine:
     ):
         self.top_k = top_k
 
-        # Load vector store (assumes it is already built)
+        # Vector store (DO NOT load here)
         self.vector_store = FAISSVectorStore(
             persistent_dir=persist_dir,
             embedding_model=embedding_model,
         )
-        self.vector_store.load()
 
         # Load LLM
         groq_api_key = os.getenv("GROQ_API_KEY")
@@ -34,46 +33,101 @@ class RAGEngine:
             api_key=groq_api_key,
             model=llm_model,
         )
-
-    def answer_query(self, query: str) -> str:
-        """
-        Perform RAG-based answering:
-        - retrieve relevant chunks
-        - build context
-        - generate grounded answer
-        """
-
-        results = self.vector_store.query(query, top_k=self.top_k)
-
-        texts: List[str] = [
-            r["metadata"].get("text", "")
-            for r in results
-            if r.get("metadata")
-        ]
-
-        if not texts:
-            return "No relevant information found in the documents."
-
-        context = "\n\n".join(texts)
-
-        prompt = f"""
-You are an academic knowledge assistant.
-Answer the question using ONLY the provided context.
-If the answer is not present, say you do not know.
-
-Context:
-{context}
-
-Question:
-{query}
-
-Answer:
-"""
-
-        response = self.llm.invoke(prompt)
-        return response.content
     
     def answer_query_with_sources(self, query: str):
+      if not self._ensure_index_loaded():
+          return {
+              "answer": "No documents have been uploaded yet.",
+              "sources": [],
+              "confidence": 0.0
+          }
+
+      results = self.vector_store.query(query, top_k=self.top_k)
+
+      if not results:
+          return {
+              "answer": "No relevant information found.",
+              "sources": [],
+              "confidence": 0.0
+          }
+
+      texts = []
+      sources = []
+
+      for r in results:
+          meta = r.get("metadata", {})
+          text = meta.get("text", "")
+          if text:
+              texts.append(text)
+              sources.append(text[:200])
+
+      context = "\n\n".join(texts)
+
+      prompt = f"""
+  You are an academic knowledge assistant.
+  Answer the question using ONLY the provided context.
+  If the answer is not present, say "I do not know".
+
+  Context:
+  {context}
+
+  Question:
+  {query}
+
+  Answer:
+  """
+
+      response = self.llm.invoke(prompt)
+
+      confidence = round(min(1.0, len(texts) / self.top_k), 2)
+
+      return {
+          "answer": response.content,
+          "sources": sources,
+          "confidence": confidence
+      }
+
+    def _ensure_index_loaded(self):
+      try:
+          self.vector_store.load()
+          return True
+      except Exception:
+          return False
+    
+    def answer_query(self, query: str) -> str:
+      if not self._ensure_index_loaded():
+          return "No documents have been uploaded yet."
+
+      results = self.vector_store.query(query, top_k=self.top_k)
+
+      texts = [
+          r["metadata"].get("text", "")
+          for r in results
+          if r.get("metadata")
+      ]
+
+      if not texts:
+          return "No relevant information found in the documents."
+
+      context = "\n\n".join(texts)
+
+      prompt = f"""
+  You are an academic knowledge assistant.
+  Answer the question using ONLY the provided context.
+  If the answer is not present, say you do not know.
+
+  Context:
+  {context}
+
+  Question:
+  {query}
+
+  Answer:
+  """
+
+      response = self.llm.invoke(prompt)
+      return response.content
+
       """
       Perform RAG-based answering and return answer with sources and confidence.
       """
