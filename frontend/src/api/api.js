@@ -22,14 +22,44 @@ export const uploadPDFs = async (formData) => {
 
 /*
 ----------------------------------------
-QUERY ROUTE (for chat UI later)
+QUERY ROUTE
 ----------------------------------------
 */
-export const askQuestion = async (question) => {
+export const askQuestion = async (question, level = "intermediate") => {
   const response = await api.post("/query/", {
-    question: question,
+    question,
+    level: level || "intermediate",
   });
+  return response.data;
+};
 
+/*
+----------------------------------------
+SUMMARIZE ROUTE
+----------------------------------------
+*/
+export const summarizeDocuments = async () => {
+  const response = await api.post("/summarize/", {}, { timeout: 0 });
+  return response.data;
+};
+
+/*
+----------------------------------------
+DOCUMENTS ROUTES
+----------------------------------------
+*/
+export const listDocuments = async () => {
+  const response = await api.get("/documents/");
+  return response.data;
+};
+
+export const deleteDocument = async (filename) => {
+  const response = await api.delete(`/documents/${encodeURIComponent(filename)}`);
+  return response.data;
+};
+
+export const deleteAllDocuments = async () => {
+  const response = await api.delete("/documents/");
   return response.data;
 };
 

@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 
 from app.retrieval.vectorstore import FAISSVectorStore
+from pathlib import Path
 
 load_dotenv()
 
@@ -17,6 +18,12 @@ class RAGEngine:
         top_k: int = 5,
     ):
         self.top_k = top_k
+
+        # Resolve persist directory relative to backend/ for consistency
+        base_dir = Path(__file__).resolve().parents[3]
+        persist_path = Path(persist_dir)
+        if not persist_path.is_absolute():
+            persist_dir = str(base_dir / "backend" / persist_dir)
 
         # Vector store (DO NOT load here)
         self.vector_store = FAISSVectorStore(
@@ -34,7 +41,13 @@ class RAGEngine:
             model=llm_model,
         )
     
-    def answer_query_with_sources(self, query: str):
+    LEVEL_INSTRUCTIONS = {
+        "beginner": "Explain in simple language suitable for a beginner. Avoid jargon; use everyday words and short sentences. If you must use a technical term, define it briefly.",
+        "intermediate": "Explain at an intermediate level. You may use standard terminology and assume basic familiarity with the subject.",
+        "advanced": "Explain at an advanced level. Use precise terminology and you may assume the reader has prior knowledge of the field.",
+    }
+
+    def answer_query_with_sources(self, query: str, level: str = "intermediate"):
       if not self._ensure_index_loaded():
           return {
               "answer": "No documents have been uploaded yet.",
@@ -62,20 +75,25 @@ class RAGEngine:
               sources.append(text[:200])
 
       context = "\n\n".join(texts)
+      level_key = (level or "intermediate").lower()
+      level_instruction = self.LEVEL_INSTRUCTIONS.get(
+          level_key, self.LEVEL_INSTRUCTIONS["intermediate"]
+      )
 
-      prompt = f"""
-  You are an academic knowledge assistant.
-  Answer the question using ONLY the provided context.
-  If the answer is not present, say "I do not know".
+      prompt = f"""You are an academic knowledge assistant.
+{level_instruction}
 
-  Context:
-  {context}
+Answer the question using ONLY the provided context.
+If the answer is not present, say "I do not know".
 
-  Question:
-  {query}
+Context:
+{context}
 
-  Answer:
-  """
+Question:
+{query}
+
+Answer:
+"""
 
       response = self.llm.invoke(prompt)
 
@@ -93,6 +111,42 @@ class RAGEngine:
           return True
       except Exception:
           return False
+
+    # Max chars to send to LLM for summarization (avoid token limit)
+    SUMMARY_MAX_CHARS = 80_000
+
+    def summarize_all(self) -> dict:
+        """Summarize all ingested documents. Returns summary and chunk count."""
+        if not self._ensure_index_loaded():
+            return {
+                "summary": "No documents have been uploaded yet.",
+                "chunks_used": 0,
+            }
+        texts = self.vector_store.get_all_texts()
+        if not texts:
+            return {"summary": "No content found in the index.", "chunks_used": 0}
+        combined = "\n\n".join(texts)
+        if len(combined) > self.SUMMARY_MAX_CHARS:
+            combined = combined[: self.SUMMARY_MAX_CHARS] + "\n\n[Content truncated for length.]"
+        prompt = f"""You are an academic study assistant. Summarize the following document content clearly and concisely.
+
+Provide:
+1. A short overall summary (2-4 sentences).
+2. Key points or section summaries as bullet points.
+3. Any important definitions or concepts mentioned.
+
+Use only the content below. Do not add information that is not in the text.
+
+Content:
+{combined}
+
+Summary:
+"""
+        response = self.llm.invoke(prompt)
+        return {
+            "summary": response.content,
+            "chunks_used": len(texts),
+        }
     
     def answer_query(self, query: str) -> str:
       if not self._ensure_index_loaded():

@@ -18,16 +18,24 @@ router = APIRouter(
 BASE_DIR = Path(__file__).resolve().parents[3]
 UPLOAD_DIR = BASE_DIR / "backend" / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
+PERSIST_DIR = BASE_DIR / "backend" / "faiss_store"
+PERSIST_DIR.mkdir(exist_ok=True)
+
+
+ALLOWED_EXTENSIONS = {".pdf", ".docx", ".pptx"}
 
 
 @router.post("/")
-def upload_pdfs(files: list[UploadFile] = File(...)):
+def upload_documents(files: list[UploadFile] = File(...)):
     try:
         # 1️⃣ Save uploaded files
         for file in files:
-            if not file.filename.lower().endswith(".pdf"):
-                raise HTTPException(status_code=400, detail="Only PDF files are allowed")
-            
+            ext = Path(file.filename).suffix.lower()
+            if ext not in ALLOWED_EXTENSIONS:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Only PDF, DOCX, and PPTX files are allowed. Got: {ext or 'no extension'}",
+                )
             file_path = UPLOAD_DIR / file.filename
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
@@ -40,7 +48,7 @@ def upload_pdfs(files: list[UploadFile] = File(...)):
 
         # 4️⃣ Build FAISS index
         store = FAISSVectorStore(
-            persistent_dir="faiss_store",
+            persistent_dir=str(PERSIST_DIR),
             embedding_model="all-MiniLM-L6-v2"
         )
         store.build_from_chunks(chunks)

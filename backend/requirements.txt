@@ -16,6 +16,8 @@ langchain-groq
 # Document loading
 # =========================
 pypdf
+python-docx
+python-pptx
 
 # =========================
 # Embeddings

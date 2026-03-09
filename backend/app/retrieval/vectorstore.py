@@ -2,7 +2,7 @@ import os
 import faiss
 import numpy as np
 import pickle
-from typing import List, Any
+from typing import List, Any, Dict
 from sentence_transformers import SentenceTransformer
 from app.retrieval.embedding import EmbeddingManager
 
@@ -24,24 +24,40 @@ class FAISSVectorStore:
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
 
-    def build_from_chunks(self, documents: List[Any]):
-        print(f"[INFO] Generating embeddings for {len(documents)} chunks.")
+    def build_from_chunks(self, chunks: List[Any]):
+        """
+        Build a FAISS index from already-chunked LangChain Documents.
+        Each chunk is expected to have .page_content and .metadata.
+        """
+        print(f"[INFO] Generating embeddings for {len(chunks)} chunks.")
+
+        # Reset index on rebuild
+        self.index = None
+        self.metadata = []
 
         emb_pipe = EmbeddingManager(
             model_name=self.embedding_model,
             chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap
+            chunk_overlap=self.chunk_overlap,
         )
 
-        chunks = emb_pipe.chunk_documents(documents)
         embeddings = emb_pipe.embedding_chunks(chunks)
 
-        metadatas = [{"text": chunk.page_content} for chunk in chunks]
+        metadatas: List[Dict[str, Any]] = []
+        for chunk in chunks:
+            chunk_meta = {}
+            try:
+                chunk_meta = dict(getattr(chunk, "metadata", {}) or {})
+            except Exception:
+                chunk_meta = {}
+            metadatas.append(
+                {
+                    "text": getattr(chunk, "page_content", "") or "",
+                    **chunk_meta,
+                }
+            )
 
-        self.add_embeddings(
-            np.array(embeddings).astype("float32"),
-            metadatas
-        )
+        self.add_embeddings(np.array(embeddings).astype("float32"), metadatas)
 
         self.save()
         print(f"[INFO] FAISS index built and saved to {self.persistent_dir}")
@@ -98,3 +114,9 @@ class FAISSVectorStore:
         query_embedding = model.encode([query]).astype("float32")
 
         return self.search(query_embedding, top_k=top_k)
+
+    def get_all_texts(self) -> List[str]:
+        """Return text from all stored chunks (for summarization). Call load() first."""
+        if not self.metadata:
+            return []
+        return [m.get("text", "") for m in self.metadata if m.get("text")]

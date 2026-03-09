@@ -12,12 +12,15 @@ rag_engine = RAGEngine()
 
 class QueryRequest(BaseModel):
     question: str
+    level: str | None = "intermediate"  # beginner | intermediate | advanced
 
 
 @router.post("/")
 def query_documents(request: QueryRequest):
     try:
-        result = rag_engine.answer_query_with_sources(request.question)
+        result = rag_engine.answer_query_with_sources(
+            request.question, level=request.level or "intermediate"
+        )
         return {
             "status": "success",
             "data": result

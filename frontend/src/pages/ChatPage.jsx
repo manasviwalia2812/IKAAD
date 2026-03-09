@@ -1,10 +1,38 @@
 import { useState } from "react";
-import { askQuestion } from "../api/api";
+import { askQuestion, summarizeDocuments } from "../api/api";
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [level, setLevel] = useState("intermediate");
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState(null);
+
+  const handleSummarize = async () => {
+    const confirmed = window.confirm(
+      "I'll summarize all uploaded documents. This may take a moment. Proceed?"
+    );
+    if (!confirmed) return;
+    setSummary(null);
+    setSummaryError(null);
+    setSummaryLoading(true);
+    try {
+      const response = await summarizeDocuments();
+      if (response?.status === "success" && response?.data) {
+        setSummary(response.data);
+      } else {
+        setSummaryError("No summary returned.");
+      }
+    } catch (err) {
+      setSummaryError(
+        err.response?.data?.detail || err.message || "Failed to summarize."
+      );
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +44,7 @@ function ChatPage() {
     setLoading(true);
 
     try {
-      const response = await askQuestion(trimmed);
+      const response = await askQuestion(trimmed, level);
       const answer =
         response?.status === "success" && response?.data?.answer
           ? response.data.answer
@@ -50,6 +78,43 @@ function ChatPage() {
       <p style={{ color: "var(--color-muted)", marginBottom: "1rem" }}>
         Ask questions based on your uploaded material.
       </p>
+
+      {/* Summarize section */}
+      <div style={{ marginBottom: "1.5rem" }}>
+        <button
+          type="button"
+          onClick={handleSummarize}
+          disabled={summaryLoading}
+          style={{ marginBottom: "0.5rem" }}
+        >
+          {summaryLoading ? "Summarizing…" : "Summarize all documents"}
+        </button>
+        {summaryError && (
+          <p style={{ color: "#e74c3c", margin: "0.5rem 0 0", fontSize: "0.9em" }}>
+            {summaryError}
+          </p>
+        )}
+        {summary && !summaryError && (
+          <details open style={{ marginTop: "0.5rem" }}>
+            <summary style={{ cursor: "pointer", fontWeight: 500 }}>
+              Summary {summary.chunks_used != null && `(${summary.chunks_used} chunks)`}
+            </summary>
+            <div
+              style={{
+                marginTop: "0.5rem",
+                padding: "0.75rem",
+                borderRadius: 8,
+                border: "1px solid #333",
+                backgroundColor: "var(--chat-bg)",
+                whiteSpace: "pre-wrap",
+                fontSize: "0.95em",
+              }}
+            >
+              {summary.summary}
+            </div>
+          </details>
+        )}
+      </div>
 
       {/* Message list */}
       <div
@@ -141,6 +206,24 @@ function ChatPage() {
       </div>
 
       {/* Input form */}
+      <div style={{ marginBottom: "0.5rem" }}>
+        <label style={{ marginRight: "0.5rem", fontSize: "0.9em" }}>Explain at:</label>
+        <select
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          style={{
+            padding: "0.35rem 0.5rem",
+            borderRadius: 6,
+            border: "1px solid #333",
+            backgroundColor: "var(--input-bg)",
+            fontSize: "0.95em",
+          }}
+        >
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </div>
       <form onSubmit={handleSubmit} style={{ display: "flex", gap: "0.5rem" }}>
         <input
           type="text"
