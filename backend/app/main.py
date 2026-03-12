@@ -5,6 +5,7 @@ from app.api.ingestion_routes import router as ingestion_router
 from app.api.query_routes import router as query_router
 from app.api.upload_routes import router as upload_router
 from app.api.summarize_routes import router as summarize_router
+from app.api.study_routes import router as study_router
 from app.api.documents_routes import router as documents_router
 
 app = FastAPI(
@@ -33,6 +34,7 @@ app.include_router(query_router)
 app.include_router(upload_router)
 app.include_router(summarize_router)
 app.include_router(documents_router)
+app.include_router(study_router)
 
 @app.get("/health")
 def health_check():

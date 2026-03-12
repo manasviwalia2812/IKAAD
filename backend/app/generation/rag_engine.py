@@ -1,5 +1,6 @@
 import os
 from typing import List
+import json
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 
@@ -116,6 +117,225 @@ class RAGEngine:
           "sources": sources,
           "confidence": confidence
       }
+
+    def _build_context_for_query(self, query: str) -> List[str]:
+        """Shared helper to retrieve context chunks for study tools (quiz, flashcards)."""
+        if not self._ensure_index_loaded():
+            return []
+
+        results = self.vector_store.query(query, top_k=self.top_k)
+        if not results:
+            return []
+
+        texts: List[str] = []
+        for r in results:
+            meta = r.get("metadata", {})
+            text = meta.get("text", "")
+            if text:
+                texts.append(text)
+
+        return texts
+
+    def _invoke_json_llm(self, prompt: str):
+        """Call the LLM and robustly parse a JSON response from its content."""
+        response = self.llm.invoke(prompt)
+        raw = response.content.strip()
+        # Remove optional markdown fences if present
+        if raw.startswith("```"):
+            # strip first line and trailing fence
+            lines = raw.splitlines()
+            # drop first ```... line and any final ``` line
+            inner = "\n".join(
+                line for line in lines[1:] if not line.strip().startswith("```")
+            )
+            raw = inner.strip()
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            # Fallback: try to locate first/last braces
+            start = raw.find("{")
+            end = raw.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                try:
+                    return json.loads(raw[start : end + 1])
+                except json.JSONDecodeError:
+                    pass
+            raise
+
+    def generate_mcq_quiz(self, query: str, num_questions: int = 5) -> dict:
+        """
+        Generate an MCQ quiz based on RAG context.
+
+        Returns a structured JSON object:
+        {
+          "questions": [
+            {
+              "question": "...",
+              "options": ["A", "B", "C", "D"],
+              "correct_answer": "B",
+              "explanation": "..."
+            }
+          ]
+        }
+        """
+        texts = self._build_context_for_query(query)
+        if not texts:
+            return {"questions": []}
+
+        context = "\n\n".join(texts)
+        prompt = f"""
+You are a study assistant that creates high‑quality multiple‑choice quizzes.
+
+Use ONLY the provided context to create conceptual questions. Avoid trivial
+memorization (like dates or page numbers) and focus on understanding.
+
+TASK:
+- Generate exactly {num_questions} multiple-choice questions.
+- Each question must have 4 options.
+- Exactly ONE option must be correct.
+- Provide a short explanation for each question that clarifies why the answer is correct.
+
+CONTEXT (study material):
+{context}
+
+RESPONSE FORMAT (VERY IMPORTANT):
+Return ONLY valid JSON with this exact shape, no extra commentary or text:
+{{
+  "questions": [
+    {{
+      "question": "question text",
+      "options": ["option A", "option B", "option C", "option D"],
+      "correct_answer": "the EXACT text of the correct option from options[]",
+      "explanation": "short explanation using the context"
+    }}
+  ]
+}}
+"""
+        try:
+            parsed = self._invoke_json_llm(prompt)
+        except Exception:
+            # If parsing fails, degrade gracefully
+            return {"questions": []}
+
+        # Basic validation / normalization
+        questions = parsed.get("questions") or []
+        normalized = []
+        for q in questions:
+            question = str(q.get("question", "")).strip()
+            options = q.get("options") or []
+            options = [str(o).strip() for o in options if str(o).strip()]
+            correct_answer = str(q.get("correct_answer", "")).strip()
+            explanation = str(q.get("explanation", "")).strip()
+            if question and len(options) >= 2 and correct_answer:
+                # Ensure correct_answer is one of the options; if not, default to first
+                if correct_answer not in options:
+                    correct_answer = options[0]
+                normalized.append(
+                    {
+                        "question": question,
+                        "options": options,
+                        "correct_answer": correct_answer,
+                        "explanation": explanation,
+                    }
+                )
+
+        return {"questions": normalized}
+
+    def analyze_quiz_performance(self, topic: str, questions: List[dict], user_answers: List[dict]) -> str:
+        """
+        Use the LLM to generate a brief performance analysis for the completed quiz.
+
+        `questions` is the normalized list from generate_mcq_quiz.
+        `user_answers` is a list of dicts like:
+        { "question": "...", "chosen": "...", "correct": "...", "is_correct": true/false }
+        """
+        # Build a compact representation for the model
+        summary_lines: List[str] = []
+        for idx, qa in enumerate(user_answers, start=1):
+            summary_lines.append(
+                f"Q{idx}: {qa.get('question')}\n"
+                f"- chosen: {qa.get('chosen')}\n"
+                f"- correct: {qa.get('correct')}\n"
+                f"- is_correct: {qa.get('is_correct')}"
+            )
+        quiz_summary = "\n\n".join(summary_lines)
+
+        prompt = f"""
+You are a tutoring assistant analyzing a student's quiz performance.
+
+TOPIC: {topic}
+
+QUIZ RESULTS:
+{quiz_summary}
+
+TASK:
+- Identify strong areas (what they clearly understand).
+- Identify weak areas or misconceptions.
+- Give 2‑4 concrete, encouraging study recommendations.
+
+FORMAT your response in concise Markdown with:
+- A short heading.
+- Bullet points for strengths and improvement areas.
+- A brief closing note of encouragement.
+"""
+        response = self.llm.invoke(prompt)
+        return response.content
+
+    def generate_flashcards(self, query: str, num_cards: int = 8) -> List[dict]:
+        """
+        Generate flashcards from RAG context.
+
+        Returns a list of cards:
+        [
+          {"front": "...", "back": "..."}
+        ]
+        """
+        texts = self._build_context_for_query(query)
+        if not texts:
+            return []
+
+        context = "\n\n".join(texts)
+        prompt = f"""
+You are a study assistant that creates helpful flashcards.
+
+Use ONLY the provided context to create concept‑focused flashcards.
+Avoid trivial facts; focus on definitions, relationships, and key ideas.
+
+TASK:
+- Generate up to {num_cards} flashcards.
+- Each card should have a clear, short question or prompt on the front.
+- The back should contain a concise but complete explanation or answer.
+
+CONTEXT (study material):
+{context}
+
+RESPONSE FORMAT (JSON ONLY):
+[
+  {{
+    "front": "short question or prompt",
+    "back": "concise explanation or answer"
+  }}
+]
+"""
+        try:
+            cards = self._invoke_json_llm(prompt)
+        except Exception:
+            return []
+
+        normalized: List[dict] = []
+        if isinstance(cards, list):
+            candidate_cards = cards
+        else:
+            candidate_cards = cards.get("cards") or []
+
+        for c in candidate_cards:
+            front = str(c.get("front", "")).strip()
+            back = str(c.get("back", "")).strip()
+            if front and back:
+                normalized.append({"front": front, "back": back})
+
+        # Limit to num_cards
+        return normalized[: num_cards]
 
     def _ensure_index_loaded(self):
       try:

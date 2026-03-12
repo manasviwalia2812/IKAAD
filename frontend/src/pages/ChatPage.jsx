@@ -287,14 +287,13 @@ function ChatPage() {
       <div style={{ marginBottom: "0.5rem" }}>
         <label style={{ marginRight: "0.5rem", fontSize: "0.9em" }}>Explain at:</label>
         <select
+          className="select"
           value={level}
           onChange={(e) => setLevel(e.target.value)}
           style={{
-            padding: "0.35rem 0.5rem",
-            borderRadius: 6,
-            border: "1px solid var(--border)",
-            backgroundColor: "var(--input-bg)",
-            fontSize: "0.95em",
+            maxWidth: "200px",
+            padding: "0.35rem 0.75rem",
+            fontSize: "0.9em",
           }}
         >
           <option value="beginner">Beginner</option>

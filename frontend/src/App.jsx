@@ -3,11 +3,14 @@ import UploadPage from "./pages/UploadPage";
 import ChatPage from "./pages/ChatPage";
 import { Mascot } from "./components/Mascot";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
+import { QuizPanel } from "./components/QuizPanel";
+import { FlashcardsPanel } from "./components/FlashcardsPanel";
 
 function App() {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("ikaad_theme") || "neon";
   });
+  const [activeTool, setActiveTool] = useState("chat"); // "chat" | "quiz" | "flashcards"
 
   useEffect(() => {
     localStorage.setItem("ikaad_theme", theme);
@@ -65,7 +68,7 @@ function App() {
             <div className="panelHeader">
               <div>
                 <div className="panelTitle">Workspace</div>
-                <div className="panelSub">Manage documents and chat.</div>
+                <div className="panelSub">Manage documents, chat, quizzes, and flashcards.</div>
               </div>
             </div>
 
@@ -74,7 +77,36 @@ function App() {
                 <UploadPage />
               </div>
               <div className="panelCard">
-                <ChatPage />
+                <div className="toolTabs">
+                  <button
+                    type="button"
+                    className={`toolTab ${activeTool === "chat" ? "toolTab--active" : ""}`}
+                    onClick={() => setActiveTool("chat")}
+                  >
+                    Chat
+                  </button>
+                  <button
+                    type="button"
+                    className={`toolTab ${activeTool === "quiz" ? "toolTab--active" : ""}`}
+                    onClick={() => setActiveTool("quiz")}
+                  >
+                    Quiz
+                  </button>
+                  <button
+                    type="button"
+                    className={`toolTab ${
+                      activeTool === "flashcards" ? "toolTab--active" : ""
+                    }`}
+                    onClick={() => setActiveTool("flashcards")}
+                  >
+                    Flashcards
+                  </button>
+                </div>
+                <div style={{ marginTop: "0.65rem" }}>
+                  {activeTool === "chat" && <ChatPage />}
+                  {activeTool === "quiz" && <QuizPanel />}
+                  {activeTool === "flashcards" && <FlashcardsPanel />}
+                </div>
               </div>
             </div>
           </div>

@@ -45,6 +45,35 @@ export const summarizeDocuments = async () => {
 
 /*
 ----------------------------------------
+STUDY ROUTES (Quiz + Flashcards)
+----------------------------------------
+*/
+export const generateQuiz = async (query, numQuestions = 5) => {
+  const response = await api.post("/study/quiz", {
+    query,
+    num_questions: numQuestions,
+  });
+  return response.data;
+};
+
+export const analyzeQuiz = async (topic, answers) => {
+  const response = await api.post("/study/quiz/analyze", {
+    topic,
+    answers,
+  });
+  return response.data;
+};
+
+export const generateFlashcardsApi = async (query, numCards = 8) => {
+  const response = await api.post("/study/flashcards", {
+    query,
+    num_cards: numCards,
+  });
+  return response.data;
+};
+
+/*
+----------------------------------------
 DOCUMENTS ROUTES
 ----------------------------------------
 */
