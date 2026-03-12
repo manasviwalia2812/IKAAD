@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { askQuestion, summarizeDocuments } from "../api/api";
 
 function ChatPage() {
@@ -73,9 +74,9 @@ function ChatPage() {
   };
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto" }}>
-      <h2>Ask Questions</h2>
-      <p style={{ color: "var(--color-muted)", marginBottom: "1rem" }}>
+    <div>
+      <h2 style={{ margin: "0 0 6px" }}>Chat</h2>
+      <p style={{ color: "var(--muted)", margin: "0 0 14px", fontSize: "0.95rem" }}>
         Ask questions based on your uploaded material.
       </p>
 
@@ -104,7 +105,7 @@ function ChatPage() {
                 marginTop: "0.5rem",
                 padding: "0.75rem",
                 borderRadius: 8,
-                border: "1px solid #333",
+                border: "1px solid var(--border)",
                 backgroundColor: "var(--chat-bg)",
                 whiteSpace: "pre-wrap",
                 fontSize: "0.95em",
@@ -122,15 +123,15 @@ function ChatPage() {
           minHeight: 280,
           maxHeight: 420,
           overflowY: "auto",
-          border: "1px solid #333",
-          borderRadius: 8,
+          border: "1px solid var(--border)",
+          borderRadius: 14,
           padding: "1rem",
           marginBottom: "1rem",
           backgroundColor: "var(--chat-bg)",
         }}
       >
         {messages.length === 0 && !loading ? (
-          <p style={{ color: "var(--color-muted)", margin: 0 }}>
+          <p style={{ color: "var(--muted)", margin: 0 }}>
             No messages yet. Type a question and press Send.
           </p>
         ) : (
@@ -154,9 +155,86 @@ function ChatPage() {
                         ? "var(--user-bubble)"
                         : "var(--assistant-bubble)",
                     textAlign: "left",
+                    fontSize: "0.95rem",
+                    lineHeight: 1.5,
                   }}
                 >
-                  <div>{msg.content}</div>
+                  {msg.role === "assistant" && !msg.error ? (
+                    <ReactMarkdown
+                      components={{
+                        p: ({ node, ...props }) => (
+                          <p style={{ margin: "0 0 0.5rem" }} {...props} />
+                        ),
+                        ul: ({ node, ...props }) => (
+                          <ul
+                            style={{
+                              paddingLeft: "1.25rem",
+                              margin: "0 0 0.5rem",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        ol: ({ node, ...props }) => (
+                          <ol
+                            style={{
+                              paddingLeft: "1.25rem",
+                              margin: "0 0 0.5rem",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        li: ({ node, ...props }) => (
+                          <li style={{ marginBottom: "0.25rem" }} {...props} />
+                        ),
+                        h1: ({ node, ...props }) => (
+                          <h3
+                            style={{
+                              margin: "0 0 0.5rem",
+                              fontSize: "1.1rem",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        h2: ({ node, ...props }) => (
+                          <h4
+                            style={{
+                              margin: "0.35rem 0 0.35rem",
+                              fontSize: "1rem",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        code: ({ inline, ...props }) =>
+                          inline ? (
+                            <code
+                              style={{
+                                backgroundColor: "rgba(0,0,0,0.15)",
+                                padding: "0.05rem 0.25rem",
+                                borderRadius: 4,
+                                fontSize: "0.9em",
+                              }}
+                              {...props}
+                            />
+                          ) : (
+                            <pre
+                              style={{
+                                backgroundColor: "rgba(0,0,0,0.25)",
+                                padding: "0.5rem 0.75rem",
+                                borderRadius: 8,
+                                overflowX: "auto",
+                                margin: "0.5rem 0",
+                              }}
+                            >
+                              <code {...props} />
+                            </pre>
+                          ),
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  ) : (
+                    <div>{msg.content}</div>
+                  )}
                   {msg.role === "assistant" && msg.error && (
                     <div style={{ marginTop: "0.25rem", fontSize: "0.85em", opacity: 0.85 }}>
                       Tip: Ensure the backend is running (e.g. <code>uvicorn app.main:app</code>) and you have uploaded at least one PDF.
@@ -194,7 +272,7 @@ function ChatPage() {
                     padding: "0.5rem 0.75rem",
                     borderRadius: 12,
                     backgroundColor: "var(--assistant-bubble)",
-                    color: "var(--color-muted)",
+                    color: "var(--muted)",
                   }}
                 >
                   Thinking…
@@ -214,7 +292,7 @@ function ChatPage() {
           style={{
             padding: "0.35rem 0.5rem",
             borderRadius: 6,
-            border: "1px solid #333",
+            border: "1px solid var(--border)",
             backgroundColor: "var(--input-bg)",
             fontSize: "0.95em",
           }}
@@ -234,7 +312,7 @@ function ChatPage() {
             flex: 1,
             padding: "0.6rem 0.75rem",
             borderRadius: 8,
-            border: "1px solid #333",
+            border: "1px solid var(--border)",
             fontSize: "1rem",
             backgroundColor: "var(--input-bg)",
           }}

@@ -15,7 +15,7 @@ class RAGEngine:
         persist_dir: str = "faiss_store",
         embedding_model: str = "all-MiniLM-L6-v2",
         llm_model: str = "llama-3.3-70b-versatile",
-        top_k: int = 5,
+        top_k: int = 10,
     ):
         self.top_k = top_k
 
@@ -72,7 +72,9 @@ class RAGEngine:
           text = meta.get("text", "")
           if text:
               texts.append(text)
-              sources.append(text[:200])
+              src = meta.get("source")
+              src_name = Path(str(src)).name if src else "unknown"
+              sources.append(f"{src_name}: {text[:200]}")
 
       context = "\n\n".join(texts)
       level_key = (level or "intermediate").lower()
@@ -81,19 +83,29 @@ class RAGEngine:
       )
 
       prompt = f"""You are an academic knowledge assistant.
-{level_instruction}
+      {level_instruction}
 
-Answer the question using ONLY the provided context.
-If the answer is not present, say "I do not know".
+      Rules:
+      - Use ONLY the provided context. Do not use outside knowledge.
+      - If the context clearly does NOT contain the answer and is unrelated, say: "I do not know based on the provided documents."
+      - If the context contains some related information but is insufficient to fully answer, do NOT refuse. Instead:
+        1) State what you found (briefly, grounded in the context).
+        2) Ask 1-2 clarifying questions that would let you answer precisely (offer a couple of options if helpful).
+      - If the answer is present, answer directly and cite key details from the context in your wording.
+      - Format your entire answer as clean Markdown. Use:
+        * A short heading or bolded first line for the main takeaway.
+        * Bulleted or numbered lists for steps, key points, and examples.
+        * Subheadings for different sections when helpful.
+        * Markdown code blocks only when you need to show literal code or formulas.
 
-Context:
-{context}
+      Context:
+      {context}
 
-Question:
-{query}
+      Question:
+      {query}
 
-Answer:
-"""
+      Answer in Markdown:
+      """
 
       response = self.llm.invoke(prompt)
 

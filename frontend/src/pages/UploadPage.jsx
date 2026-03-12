@@ -84,8 +84,11 @@ function UploadPage() {
 
 
   return (
-    <div style={{ marginBottom: "2rem" }}>
-      <h2>Upload Study Material</h2>
+    <div>
+      <h2 style={{ margin: "0 0 6px" }}>Documents</h2>
+      <p style={{ color: "var(--muted)", margin: "0 0 14px", fontSize: "0.95rem" }}>
+        Upload PDFs, PPTX, or DOCX. You can remove files anytime.
+      </p>
 
       <input
         type="file"
@@ -107,7 +110,7 @@ function UploadPage() {
 
       <div>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <h3 style={{ margin: 0 }}>Uploaded documents</h3>
+          <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Uploaded documents</h3>
           <button type="button" onClick={refreshDocuments} disabled={docsLoading}>
             {docsLoading ? "Refreshing…" : "Refresh"}
           </button>
@@ -141,7 +144,7 @@ function UploadPage() {
         )}
 
         {documents.length === 0 && !docsLoading ? (
-          <p style={{ marginTop: "0.75rem", color: "var(--color-muted)" }}>
+          <p style={{ marginTop: "0.75rem", color: "var(--muted)" }}>
             No documents uploaded yet.
           </p>
         ) : (
