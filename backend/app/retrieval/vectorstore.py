@@ -95,25 +95,40 @@ class FAISSVectorStore:
 
         print(f"[INFO] FAISS index loaded from {self.persistent_dir}")
 
-    def search(self, query_embedding: np.ndarray, top_k: int = 5):
-        D, I = self.index.search(query_embedding, top_k)
+    def search(self, query_embedding: np.ndarray, top_k: int = 5, filter: Dict[str, Any] = None):
+    D, I = self.index.search(query_embedding, top_k)
 
-        results = []
-        for idx, dist in zip(I[0], D[0]):
-            meta = self.metadata[idx] if idx < len(self.metadata) else None
-            results.append(
-                {"index": idx, "distance": dist, "metadata": meta}
-            )
+    results = []
 
-        return results
+    for idx, dist in zip(I[0], D[0]):
+        meta = self.metadata[idx] if idx < len(self.metadata) else None
 
-    def query(self, query: str, top_k: int = 5):
-        print(f'[INFO] Querying vector store for: "{query}"')
+        if filter and meta:
+            match = True
+            for key, value in filter.items():
+                if meta.get(key) != value:
+                    match = False
+                    break
+            if not match:
+                continue
 
-        model = SentenceTransformer(self.embedding_model)
-        query_embedding = model.encode([query]).astype("float32")
+        results.append(
+            {
+                "index": idx,
+                "distance": dist,
+                "metadata": meta
+            }
+        )
 
-        return self.search(query_embedding, top_k=top_k)
+    return results
+
+    def query(self, query: str, top_k: int = 5, filter: Dict[str, Any] = None):
+    print(f'[INFO] Querying vector store for: "{query}"')
+
+    model = SentenceTransformer(self.embedding_model)
+    query_embedding = model.encode([query]).astype("float32")
+
+    return self.search(query_embedding, top_k=top_k, filter=filter)
 
     def get_all_texts(self) -> List[str]:
         """Return text from all stored chunks (for summarization). Call load() first."""
