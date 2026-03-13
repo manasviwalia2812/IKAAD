@@ -1,5 +1,8 @@
 from typing import List, Any
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def chunk_documents(
@@ -19,4 +22,7 @@ def chunk_documents(
     )
 
     chunks = splitter.split_documents(documents)
+
+    logger.info(f"Generated {len(chunks)} document chunks")
+
     return chunks
