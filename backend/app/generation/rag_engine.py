@@ -136,6 +136,21 @@ class RAGEngine:
 
         return texts
 
+    def get_retrieval_chunks(self, query: str, top_k: int = 20) -> List[str]:
+        """Retrieve text chunks for a query (e.g. for exam generator)."""
+        if not self._ensure_index_loaded():
+            return []
+        results = self.vector_store.query(query, top_k=top_k)
+        if not results:
+            return []
+        texts: List[str] = []
+        for r in results:
+            meta = r.get("metadata", {})
+            text = meta.get("text", "")
+            if text:
+                texts.append(text)
+        return texts
+
     def _invoke_json_llm(self, prompt: str):
         """Call the LLM and robustly parse a JSON response from its content."""
         response = self.llm.invoke(prompt)

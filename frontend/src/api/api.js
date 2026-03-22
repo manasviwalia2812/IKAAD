@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
 });
 
 /*
@@ -69,6 +69,19 @@ export const generateFlashcardsApi = async (query, numCards = 8) => {
     query,
     num_cards: numCards,
   });
+  return response.data;
+};
+
+/**
+ * Generate a sample exam paper from syllabus/past papers in the document store.
+ * @param {string} query - Course/topic description
+ * @param {object} examConfig - { exam_duration_minutes, total_marks, num_questions, question_style, difficulty, optional_instructions }
+ */
+export const generateSampleExam = async (query, examConfig = {}) => {
+  const response = await api.post("/study/sample-exam", {
+    query,
+    exam_config: examConfig,
+  }, { timeout: 0 });
   return response.data;
 };
 

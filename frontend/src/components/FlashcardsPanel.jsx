@@ -6,6 +6,9 @@ export function FlashcardsPanel() {
   const [loading, setLoading] = useState(false);
   const [cards, setCards] = useState([]);
   const [error, setError] = useState(null);
+  const [index, setIndex] = useState(0);
+  const [phase, setPhase] = useState("idle"); // idle | out | in
+  const [flipped, setFlipped] = useState(false);
 
   const handleGenerate = async () => {
     const trimmed = topic.trim();
@@ -13,12 +16,14 @@ export function FlashcardsPanel() {
     setLoading(true);
     setError(null);
     setCards([]);
+    setIndex(0);
+    setPhase("idle");
+    setFlipped(false);
 
     try {
       const res = await generateFlashcardsApi(trimmed, 8);
       const newCards = res?.data?.cards || [];
-      // Attach local UI state (flipped) per card
-      setCards(newCards.map((c) => ({ ...c, flipped: false })));
+      setCards(newCards);
     } catch (err) {
       setError(
         err.response?.data?.detail ||
@@ -30,12 +35,28 @@ export function FlashcardsPanel() {
     }
   };
 
-  const toggleCard = (index) => {
-    setCards((prev) =>
-      prev.map((card, i) =>
-        i === index ? { ...card, flipped: !card.flipped } : card
-      )
-    );
+  const current = cards[index] || null;
+
+  const next = () => {
+    if (!cards.length || index >= cards.length - 1 || phase !== "idle") return;
+    setPhase("out");
+    window.setTimeout(() => {
+      setIndex((prev) => prev + 1);
+      setFlipped(false);
+      setPhase("in");
+      window.setTimeout(() => setPhase("idle"), 220);
+    }, 220);
+  };
+
+  const prev = () => {
+    if (!cards.length || index <= 0 || phase !== "idle") return;
+    setPhase("out");
+    window.setTimeout(() => {
+      setIndex((p) => p - 1);
+      setFlipped(false);
+      setPhase("in");
+      window.setTimeout(() => setPhase("idle"), 220);
+    }, 220);
   };
 
   return (
@@ -74,56 +95,63 @@ export function FlashcardsPanel() {
         )}
       </div>
 
-      {cards.length > 0 && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: "0.85rem",
-          }}
-        >
-          {cards.map((card, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => toggleCard(idx)}
-              className="flashcard"
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "0.5rem",
-                  fontSize: "0.8rem",
-                  color: "var(--muted)",
-                }}
-              >
-                <span>📘 Flashcard</span>
-                <span>{card.flipped ? "Back" : "Front"}</span>
+      {cards.length > 0 && current && (
+        <div className="flashDeck">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "0.75rem",
+              color: "var(--muted)",
+              fontSize: "0.9rem",
+            }}
+          >
+            <span>
+              Card <strong style={{ color: "var(--text)" }}>{index + 1}</strong> of{" "}
+              <strong style={{ color: "var(--text)" }}>{cards.length}</strong>
+            </span>
+            <span style={{ opacity: 0.9 }}>📘 Flashcards</span>
+          </div>
+
+          <button
+            type="button"
+            className={`flashcard flashcard--single ${
+              phase === "out" ? "flashcard--out" : phase === "in" ? "flashcard--in" : ""
+            } ${flipped ? "flashcard--flipped" : ""}`}
+            onClick={() => setFlipped((v) => !v)}
+            aria-label="Flip flashcard"
+          >
+            <div className="flashcardHeader">
+              <span className="flashcardBadge">Flash Card</span>
+              <span className="flashcardSide">{flipped ? "Answer" : "Question"}</span>
+            </div>
+
+            <div className="flashcardBody">
+              <div className="flashcardBubble">
+                {flipped ? current.back : current.front}
               </div>
-              <div
-                style={{
-                  fontSize: "0.98rem",
-                  lineHeight: 1.5,
-                  textAlign: "left",
-                }}
-              >
-                {card.flipped ? card.back : card.front}
-              </div>
-              {!card.flipped && (
-                <div
-                  style={{
-                    marginTop: "0.65rem",
-                    fontSize: "0.8rem",
-                    color: "var(--muted)",
-                  }}
-                >
-                  Click to reveal answer
-                </div>
-              )}
+            </div>
+
+            <div className="flashcardFooter">
+              <span className="flashcardHint">
+                {flipped ? "Click to see question" : "Click to reveal answer"}
+              </span>
+            </div>
+          </button>
+
+          <div style={{ display: "flex", gap: "0.6rem", marginTop: "0.85rem" }}>
+            <button type="button" onClick={prev} disabled={index === 0 || phase !== "idle"}>
+              Previous
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={next}
+              disabled={index === cards.length - 1 || phase !== "idle"}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

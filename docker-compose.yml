@@ -1,0 +1,35 @@
+
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: ikaad_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the uploads folder locally to preserve documents and avoid them getting lost on container restart if needed
+      - ./backend/uploads:/app/uploads
+      - ./backend/faiss_store:/app/faiss_store
+    env_file:
+      - ./backend/.env
+    environment:
+      # Optional: Put your environment variables here if you don't use .env or want to override
+      - PYTHONUNBUFFERED=1
+    # Adding a health check (Optional, but good practice)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ikaad_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
