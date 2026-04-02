@@ -1,5 +1,6 @@
+import os
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware  # ← Add this import
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
 from app.api.ingestion_routes import router as ingestion_router
 from app.api.query_routes import router as query_router
@@ -14,18 +15,25 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# ← Add CORS middleware BEFORE including routers
+# Build allowed origins: localhost for dev + production Vercel URL
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
+
+# Add production frontend URL if set (e.g. https://ikaad.vercel.app)
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    allowed_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",      # React default
-        "http://localhost:5173",      # Vite default
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],              # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],              # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(router)
