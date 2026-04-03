@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import List
 
@@ -51,9 +51,10 @@ class SampleExamRequest(BaseModel):
 
 
 @router.post("/quiz")
-def generate_quiz(request: MCQRequest):
+def generate_quiz(request: MCQRequest, x_groq_key: str | None = Header(default=None)):
     try:
-        result = rag_engine.generate_mcq_quiz(
+        engine = rag_engine.with_api_key(x_groq_key)
+        result = engine.generate_mcq_quiz(
             request.query,
             num_questions=request.num_questions or 5,
         )
@@ -63,10 +64,11 @@ def generate_quiz(request: MCQRequest):
 
 
 @router.post("/quiz/analyze")
-def analyze_quiz(request: QuizAnalysisRequest):
+def analyze_quiz(request: QuizAnalysisRequest, x_groq_key: str | None = Header(default=None)):
     try:
         # We don't actually need the full questions again; answers embed what we need.
-        analysis_md = rag_engine.analyze_quiz_performance(
+        engine = rag_engine.with_api_key(x_groq_key)
+        analysis_md = engine.analyze_quiz_performance(
             topic=request.topic, questions=[], user_answers=[a.dict() for a in request.answers]
         )
         return {"status": "success", "data": {"analysis_markdown": analysis_md}}
@@ -75,9 +77,10 @@ def analyze_quiz(request: QuizAnalysisRequest):
 
 
 @router.post("/flashcards")
-def generate_flashcards(request: FlashcardRequest):
+def generate_flashcards(request: FlashcardRequest, x_groq_key: str | None = Header(default=None)):
     try:
-        cards = rag_engine.generate_flashcards(
+        engine = rag_engine.with_api_key(x_groq_key)
+        cards = engine.generate_flashcards(
             request.query,
             num_cards=request.num_cards or 8,
         )
@@ -87,15 +90,16 @@ def generate_flashcards(request: FlashcardRequest):
 
 
 @router.post("/sample-exam")
-def generate_sample_exam_route(request: SampleExamRequest):
+def generate_sample_exam_route(request: SampleExamRequest, x_groq_key: str | None = Header(default=None)):
     try:
+        engine = rag_engine.with_api_key(x_groq_key)
         config = request.exam_config or ExamConfig()
-        retriever = lambda q, k: rag_engine.get_retrieval_chunks(q, top_k=k)
+        retriever = lambda q, k: engine.get_retrieval_chunks(q, top_k=k)
         config_dict = config.model_dump(exclude_none=True) if hasattr(config, "model_dump") else config.dict(exclude_none=True)
         paper = generate_sample_exam(
             request.query,
             retriever,
-            rag_engine.llm,
+            engine.llm,
             config_dict,
         )
         return {"status": "success", "data": {"paper": paper}}

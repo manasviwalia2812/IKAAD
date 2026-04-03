@@ -5,7 +5,7 @@ import { QuizPanel } from "../components/QuizPanel";
 import { FlashcardsPanel } from "../components/FlashcardsPanel";
 import { SamplePaperPanel } from "../components/SamplePaperPanel";
 
-export default function WorkspacePage({ activeTool, setActiveTool }) {
+export default function WorkspacePage({ activeTool, setActiveTool, userName }) {
   const [showDocumentsPanel, setShowDocumentsPanel] = useState(true);
 
   return (
@@ -85,7 +85,7 @@ export default function WorkspacePage({ activeTool, setActiveTool }) {
             </div>
 
             <div style={{ marginTop: "0.65rem" }}>
-              {activeTool === "chat" && <ChatPage />}
+              {activeTool === "chat" && <ChatPage userName={userName} />}
               {activeTool === "quiz" && <QuizPanel />}
               {activeTool === "flashcards" && <FlashcardsPanel />}
               {activeTool === "samplepaper" && <SamplePaperPanel />}

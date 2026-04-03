@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from app.generation.rag_engine import RAGEngine
 
@@ -16,9 +16,10 @@ class QueryRequest(BaseModel):
 
 
 @router.post("/")
-def query_documents(request: QueryRequest):
+def query_documents(request: QueryRequest, x_groq_key: str | None = Header(default=None)):
     try:
-        result = rag_engine.answer_query_with_sources(
+        engine = rag_engine.with_api_key(x_groq_key)
+        result = engine.answer_query_with_sources(
             request.question, level=request.level or "intermediate"
         )
         return {

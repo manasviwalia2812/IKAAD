@@ -41,6 +41,15 @@ class RAGEngine:
             api_key=groq_api_key,
             model=llm_model,
         )
+
+    def with_api_key(self, api_key: str = None):
+        """Returns a shallow copy of this engine using the provided Groq API key, sharing the vector index."""
+        if not api_key:
+            return self
+        import copy
+        new_engine = copy.copy(self)
+        new_engine.llm = ChatGroq(api_key=api_key, model=self.llm.model_name)
+        return new_engine
     
     LEVEL_INSTRUCTIONS = {
         "beginner": "Explain in simple language suitable for a beginner. Avoid jargon; use everyday words and short sentences. If you must use a technical term, define it briefly.",

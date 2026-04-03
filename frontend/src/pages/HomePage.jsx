@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <section className="hero hero--full">
       <div className="heroInner">
-        <div className="heroKicker">Study assistant</div>
+        <div className="heroKicker" style={{ letterSpacing: '0.05em' }}>Intelligent Knowledge Assistant for Academic Documents</div>
         <h1 className="heroTitle">
           Learn faster with a source‑grounded AI you can trust.
         </h1>

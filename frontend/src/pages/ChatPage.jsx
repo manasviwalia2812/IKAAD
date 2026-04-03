@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { askQuestion, summarizeDocuments } from "../api/api";
 
-function ChatPage() {
+function ChatPage({ userName }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -10,6 +10,24 @@ function ChatPage() {
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState(null);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        { role: "assistant", content: `Hi ${userName || 'there'}, I am Miku! I'm here to make learning easier and more fun!😻` }
+      ]);
+    }
+  }, [userName]);
+
+  const suggestedQuestions = [
+    "Summarize the key points.",
+    "What are the main topics?",
+    "Explain this to me like a beginner."
+  ];
+
+  const handleSuggestedQuestion = (question) => {
+    setInput(question);
+  };
 
   const handleSummarize = async () => {
     const confirmed = window.confirm(
@@ -282,6 +300,29 @@ function ChatPage() {
           </>
         )}
       </div>
+
+      {/* Suggested Questions */}
+      {messages.length <= 1 && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
+          {suggestedQuestions.map((q, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSuggestedQuestion(q)}
+              style={{
+                background: 'var(--panel-2)',
+                border: '1px solid var(--border)',
+                padding: '6px 12px',
+                fontSize: '0.85rem',
+                borderRadius: '20px',
+                color: 'var(--text-main)',
+              }}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Input form */}
       <div style={{ marginBottom: "0.5rem" }}>

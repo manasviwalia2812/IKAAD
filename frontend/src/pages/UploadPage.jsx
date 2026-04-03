@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { deleteAllDocuments, deleteDocument, listDocuments, uploadPDFs } from "../api/api";
+import DeleteButton from "../components/DeleteButton";
 
 function UploadPage() {
   const [files, setFiles] = useState([]);
@@ -114,13 +115,9 @@ function UploadPage() {
           <button type="button" onClick={refreshDocuments} disabled={docsLoading}>
             {docsLoading ? "Refreshing…" : "Refresh"}
           </button>
-          <button
-            type="button"
-            onClick={async () => {
-              const ok = window.confirm(
-                "Delete ALL uploaded documents and clear the model index? This cannot be undone."
-              );
-              if (!ok) return;
+          <DeleteButton
+            label="Delete all"
+            onDelete={async () => {
               try {
                 await deleteAllDocuments();
                 setStatus("All documents deleted and index cleared.");
@@ -133,10 +130,8 @@ function UploadPage() {
                 );
               }
             }}
-            disabled={docsLoading || documents.length === 0}
-          >
-            Delete all
-          </button>
+            style={{ opacity: docsLoading || documents.length === 0 ? 0.5 : 1, pointerEvents: docsLoading || documents.length === 0 ? 'none' : 'auto' }}
+          />
         </div>
 
         {docsError && (
@@ -166,13 +161,9 @@ function UploadPage() {
                       ({Math.round((doc.size_bytes || 0) / 1024)} KB)
                     </span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const ok = window.confirm(
-                        `Delete \"${doc.name}\" and rebuild the index?`
-                      );
-                      if (!ok) return;
+                  <DeleteButton
+                    label="Delete"
+                    onDelete={async () => {
                       try {
                         await deleteDocument(doc.name);
                         setStatus(`Deleted ${doc.name} and rebuilt index.`);
@@ -185,9 +176,7 @@ function UploadPage() {
                         );
                       }
                     }}
-                  >
-                    Delete
-                  </button>
+                  />
                 </div>
               </li>
             ))}
