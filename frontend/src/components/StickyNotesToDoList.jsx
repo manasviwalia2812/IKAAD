@@ -21,6 +21,10 @@ const StickyNotesToDoList = () => {
   const [taskToDelete, setTaskToDelete] = useState(null); 
   const [deleteType, setDeleteType] = useState(null); 
   const [completingTaskId, setCompletingTaskId] = useState(null);
+  
+  // Edit State
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editTaskText, setEditTaskText] = useState('');
 
   // Load data
   useEffect(() => {
@@ -51,7 +55,6 @@ const StickyNotesToDoList = () => {
     const newTask = {
       id: Date.now().toString(),
       text: newTaskText,
-      // Fixed: Adding both date and time (timestamp)
       createdAt: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
       color: getRandomColor(),
       rotation: getRandomRotation(),
@@ -66,7 +69,6 @@ const StickyNotesToDoList = () => {
     
     setTimeout(() => {
       setTodos((prev) => prev.filter((t) => t.id !== task.id));
-      // Fixed: Save timestamp of completion
       setCompletedTasks((prev) => [{ 
         ...task, 
         completedAt: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) 
@@ -95,12 +97,24 @@ const StickyNotesToDoList = () => {
     setDeleteType(null);
   };
 
+  const startEditTask = (task) => {
+    setEditingTaskId(task.id);
+    setEditTaskText(task.text);
+  };
+
+  const saveEditTask = (id) => {
+    if (!editTaskText.trim()) return;
+    setTodos((prev) => prev.map((t) => t.id === id ? { ...t, text: editTaskText } : t));
+    setEditingTaskId(null);
+  };
+
+  const cancelEditTask = () => {
+    setEditingTaskId(null);
+    setEditTaskText('');
+  };
+
   return (
     <div className="sn-wrapper">
-      {/* 
-        Using standard CSS to explicitly fix the styling issues shown in the screenshot. 
-        Tailwind classes were failing to apply width constraints and layout logic in the user's environment.
-      */}
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Just+Another+Hand&display=swap');
         
@@ -130,9 +144,8 @@ const StickyNotesToDoList = () => {
           border-radius: 1.5rem;
           box-shadow: 0 4px 12px rgba(0,0,0,0.04);
           border: 1px solid rgba(255,255,255,0.8);
-          /* Add big space between header/celebration folder and the input section */
           margin-bottom: 3.5rem;
-          flex-wrap: wrap; /* in case screen is small */
+          flex-wrap: wrap; 
           gap: 1.5rem;
         }
 
@@ -157,7 +170,6 @@ const StickyNotesToDoList = () => {
           cursor: pointer;
           display: flex;
           align-items: center;
-          /* Add some physical gap between icon and text */
           gap: 0.75rem;
           box-shadow: 0 4px 14px rgba(168,85,247,0.4);
           transition: transform 0.2s, box-shadow 0.2s;
@@ -182,11 +194,10 @@ const StickyNotesToDoList = () => {
           flex-direction: row;
           justify-content: center;
           align-items: center;
-          /* Add explicit gap between the input and ADD task button */
           gap: 2rem; 
           max-width: 900px;
           margin: 0 auto 4rem auto;
-          flex-wrap: wrap; /* keeps them responsive */
+          flex-wrap: wrap;
         }
 
         .sn-input-container {
@@ -241,7 +252,6 @@ const StickyNotesToDoList = () => {
         .sn-grid {
           display: flex;
           flex-wrap: wrap;
-          /* explicit gap between cards */
           gap: 3rem; 
           justify-content: center;
           align-items: flex-start;
@@ -259,7 +269,7 @@ const StickyNotesToDoList = () => {
           position: relative;
           box-sizing: border-box;
           box-shadow: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-          border: 1px solid rgba(0,0,0,0.08); /* This works with pastel colors too */
+          border: 1px solid rgba(0,0,0,0.08); 
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
         }
         
@@ -293,7 +303,7 @@ const StickyNotesToDoList = () => {
 
         .sn-handwritten {
           font-family: "Just Another Hand", cursive;
-          font-size: 3rem; /* Decreased font size as requested */
+          font-size: 3rem;
           line-height: 0.95;
           letter-spacing: 0.5px;
           color: #1e293b;
@@ -302,6 +312,36 @@ const StickyNotesToDoList = () => {
           word-break: break-word;
           transition: all 0.3s;
         }
+        
+        .sn-textarea {
+          width: 100%;
+          background: rgba(255,255,255,0.5);
+          border: 1px dashed #cbd5e1;
+          border-radius: 0.5rem;
+          padding: 0.5rem;
+          outline: none;
+          resize: none;
+          box-sizing: border-box;
+        }
+        .sn-textarea:focus {
+          border-color: #3b82f6;
+          background: #ffffff;
+        }
+
+        .sn-edit-action {
+          font-family: inherit;
+          font-size: 0.8rem;
+          font-weight: 600;
+          padding: 0.3rem 0.75rem;
+          border-radius: 999px;
+          cursor: pointer;
+          border: none;
+          transition: background 0.2s;
+        }
+        .sn-edit-action.cancel { background: #f1f5f9; color: #64748b; }
+        .sn-edit-action.cancel:hover { background: #e2e8f0; }
+        .sn-edit-action.save { background: #3b82f6; color: white; }
+        .sn-edit-action.save:hover { background: #2563eb; }
 
         .sn-timestamp {
           font-size: 0.75rem;
@@ -436,6 +476,8 @@ const StickyNotesToDoList = () => {
           justify-content: center;
           transition: background 0.2s;
         }
+        .sn-action-btn.edit { opacity: 0.6; filter: grayscale(1); }
+        .sn-action-btn.edit:hover { opacity: 1; filter: none; background: #f1f5f9; }
         .sn-action-btn.restore { color: #3b82f6; }
         .sn-action-btn.restore:hover { background: #eff6ff; }
         .sn-action-btn.delete { color: #94a3b8; }
@@ -486,6 +528,7 @@ const StickyNotesToDoList = () => {
           ) : (
             todos.map((task) => {
               const isCompleting = completingTaskId === task.id;
+              const isEditing = editingTaskId === task.id;
               
               return (
                 <div 
@@ -494,7 +537,6 @@ const StickyNotesToDoList = () => {
                   style={{
                     backgroundColor: task.color,
                     '--rotation': task.rotation,
-                    /* Only apply rotation when not hovered for robust effect */
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = `rotate(0deg) scale(1.03) translateY(-5px)`}
                   onMouseLeave={(e) => e.currentTarget.style.transform = `rotate(${task.rotation}) scale(1) translateY(0)`}
@@ -502,24 +544,46 @@ const StickyNotesToDoList = () => {
                 >
                   <div style={{display:'flex', gap:'1rem', alignItems:'flex-start', flexGrow: 1}}>
                     <button 
-                      onClick={() => handleCompleteTask(task)}
+                      onClick={() => !isEditing && handleCompleteTask(task)}
                       className={`sn-checkbox ${isCompleting ? 'sn-checkbox-checking' : ''}`}
                       title="Mark as done"
+                      disabled={isEditing}
+                      style={{ opacity: isEditing ? 0.5 : 1 }}
                     >
                       {isCompleting && <span style={{fontSize:'12px', fontWeight:'bold'}}>✓</span>}
                     </button>
-                    <p className="sn-handwritten" style={{ textDecoration: isCompleting ? 'line-through' : 'none', color: isCompleting ? '#94a3b8' : '#1e293b' }}>
-                      {task.text}
-                    </p>
+                    
+                    {isEditing ? (
+                      <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+                        <textarea
+                          autoFocus
+                          value={editTaskText}
+                          onChange={(e) => setEditTaskText(e.target.value)}
+                          className="sn-handwritten sn-textarea"
+                          rows={3}
+                        />
+                        <div style={{display: 'flex', gap: '0.5rem', justifyContent: 'flex-end'}}>
+                          <button onClick={cancelEditTask} className="sn-edit-action cancel">Cancel</button>
+                          <button onClick={() => saveEditTask(task.id)} className="sn-edit-action save">Save</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="sn-handwritten" style={{ textDecoration: isCompleting ? 'line-through' : 'none', color: isCompleting ? '#94a3b8' : '#1e293b' }}>
+                        {task.text}
+                      </p>
+                    )}
                   </div>
 
                   <div className="sn-completed-actions" style={{marginTop:'1.5rem'}}>
                     <div style={{display:'flex', flexDirection:'column', gap:'0.25rem'}}>
                        <span className="sn-timestamp" style={{border:'none', margin:0, padding:0}}>CREATED: {task.createdAt}</span>
                     </div>
-                    <div style={{display:'flex', gap:'0.25rem'}}>
-                      <button onClick={() => confirmDelete(task, 'active')} className="sn-action-btn delete" title="Delete">🗑️</button>
-                    </div>
+                    {!isEditing && (
+                      <div style={{display:'flex', gap:'0.25rem'}}>
+                        <button onClick={() => startEditTask(task)} className="sn-action-btn edit" title="Edit text">✏️</button>
+                        <button onClick={() => confirmDelete(task, 'active')} className="sn-action-btn delete" title="Delete">🗑️</button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
