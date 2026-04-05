@@ -4,6 +4,7 @@ import ChatPage from "./ChatPage";
 import { QuizPanel } from "../components/QuizPanel";
 import { FlashcardsPanel } from "../components/FlashcardsPanel";
 import { SamplePaperPanel } from "../components/SamplePaperPanel";
+import StickyNotesToDoList from "../components/StickyNotesToDoList";
 
 export default function WorkspacePage({ activeTool, setActiveTool, userName }) {
   const [showDocumentsPanel, setShowDocumentsPanel] = useState(true);
@@ -82,6 +83,15 @@ export default function WorkspacePage({ activeTool, setActiveTool, userName }) {
               >
                 Sample Paper
               </button>
+              <button
+                type="button"
+                className={`toolTab ${
+                  activeTool === "stickynotes" ? "toolTab--active" : ""
+                }`}
+                onClick={() => setActiveTool("stickynotes")}
+              >
+                To-Do Notes
+              </button>
             </div>
 
             <div style={{ marginTop: "0.65rem" }}>
@@ -89,6 +99,7 @@ export default function WorkspacePage({ activeTool, setActiveTool, userName }) {
               {activeTool === "quiz" && <QuizPanel />}
               {activeTool === "flashcards" && <FlashcardsPanel />}
               {activeTool === "samplepaper" && <SamplePaperPanel />}
+              {activeTool === "stickynotes" && <StickyNotesToDoList />}
             </div>
           </div>
         </div>
