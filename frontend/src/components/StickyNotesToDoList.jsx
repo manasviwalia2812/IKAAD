@@ -248,61 +248,23 @@ const StickyNotesToDoList = () => {
         }
 
         .sn-card {
-          /* explicitly square sizes so they are sticky notes, side by side */
-          width: 280px;
-          height: 280px;
+          width: 320px;
+          min-height: 280px; 
+          height: auto; 
           flex-shrink: 0;
           padding: 1.5rem;
-          border-radius: 1rem;
+          border-radius: 1.25rem;
           display: flex;
           flex-direction: column;
           position: relative;
           box-sizing: border-box;
           box-shadow: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-          border: 1px solid rgba(0,0,0,0.08);
+          border: 1px solid rgba(0,0,0,0.08); /* This works with pastel colors too */
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
         }
         
         .sn-card:hover {
           box-shadow: 0 16px 32px rgba(0,0,0,0.12);
-          z-index: 10;
-        }
-
-        .sn-delete-btn {
-          position: absolute;
-          top: 0.75rem;
-          right: 0.75rem;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: transparent;
-          border: none;
-          color: #94a3b8;
-          font-size: 1.25rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: all 0.2s;
-          z-index: 20;
-        }
-        .sn-card:hover .sn-delete-btn {
-          opacity: 1;
-        }
-        .sn-delete-btn:hover {
-          color: #ef4444;
-          background: rgba(0,0,0,0.05);
-        }
-
-        .sn-card-body {
-          flex-grow: 1;
-          display: flex;
-          align-items: flex-start;
-          gap: 1rem;
-          margin-top: 0.5rem;
-          overflow-y: auto;
-          position: relative;
           z-index: 10;
         }
 
@@ -324,15 +286,14 @@ const StickyNotesToDoList = () => {
           border-color: #4ade80;
         }
         .sn-checkbox-checking {
-          background: #4ade80;
-          border-color: #4ade80;
-          color: white;
+          background: #dcfce3;
+          border-color: #dcfce3;
+          color: #16a34a;
         }
 
         .sn-handwritten {
           font-family: "Just Another Hand", cursive;
-          /* Increased font size hugely by 60% as requested */
-          font-size: 4rem; 
+          font-size: 3rem; /* Decreased font size as requested */
           line-height: 0.95;
           letter-spacing: 0.5px;
           color: #1e293b;
@@ -348,9 +309,6 @@ const StickyNotesToDoList = () => {
           color: #64748b;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          margin-top: 1rem;
-          padding-top: 1rem;
-          border-top: 1px solid rgba(0,0,0,0.05);
           flex-shrink: 0;
         }
 
@@ -363,12 +321,6 @@ const StickyNotesToDoList = () => {
           30% { opacity: 0.8; transform: scale(0.95) var(--rotation); }
           100% { opacity: 0; transform: scale(0.8) translateY(30px) var(--rotation); }
         }
-
-        /* Custom scrollbar */
-        .sn-card-body::-webkit-scrollbar { width: 6px; }
-        .sn-card-body::-webkit-scrollbar-track { background: transparent; }
-        .sn-card-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        .sn-card-body::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
         /* Modal Overlays */
         .sn-modal-overlay {
@@ -467,10 +419,10 @@ const StickyNotesToDoList = () => {
         .sn-completed-actions {
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: flex-end;
           margin-top: 1rem;
           padding-top: 1rem;
-          border-top: 1px solid #f1f5f9;
+          border-top: 1px solid rgba(0,0,0,0.05);
         }
         .sn-action-btn {
           background: transparent;
@@ -548,13 +500,7 @@ const StickyNotesToDoList = () => {
                   onMouseLeave={(e) => e.currentTarget.style.transform = `rotate(${task.rotation}) scale(1) translateY(0)`}
                   ref={el => { if(el && !isCompleting && el.style.transform === "") el.style.transform = `rotate(${task.rotation})`; }}
                 >
-                  <button 
-                    onClick={() => confirmDelete(task, 'active')}
-                    className="sn-delete-btn"
-                    title="Delete"
-                  >✕</button>
-                  
-                  <div className="sn-card-body">
+                  <div style={{display:'flex', gap:'1rem', alignItems:'flex-start', flexGrow: 1}}>
                     <button 
                       onClick={() => handleCompleteTask(task)}
                       className={`sn-checkbox ${isCompleting ? 'sn-checkbox-checking' : ''}`}
@@ -567,8 +513,13 @@ const StickyNotesToDoList = () => {
                     </p>
                   </div>
 
-                  <div className="sn-timestamp">
-                    Created: {task.createdAt}
+                  <div className="sn-completed-actions" style={{marginTop:'1.5rem'}}>
+                    <div style={{display:'flex', flexDirection:'column', gap:'0.25rem'}}>
+                       <span className="sn-timestamp" style={{border:'none', margin:0, padding:0}}>CREATED: {task.createdAt}</span>
+                    </div>
+                    <div style={{display:'flex', gap:'0.25rem'}}>
+                      <button onClick={() => confirmDelete(task, 'active')} className="sn-action-btn delete" title="Delete">🗑️</button>
+                    </div>
                   </div>
                 </div>
               );
@@ -597,19 +548,19 @@ const StickyNotesToDoList = () => {
                   {completedTasks.map(task => (
                     <div key={task.id} className="sn-completed-card">
                       <div style={{display:'flex', gap:'1rem', alignItems:'flex-start'}}>
-                        <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'#dcfce3', color:'#16a34a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:'0', marginTop:'0.5rem'}}>
+                        <div style={{width:'26px', height:'26px', borderRadius:'50%', background:'#dcfce3', color:'#16a34a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:'0', marginTop:'0.4rem'}}>
                           <span style={{fontSize:'12px', fontWeight:'bold'}}>✓</span>
                         </div>
-                        <p className="sn-handwritten" style={{fontSize:'2.5rem', textDecoration:'line-through', color:'#64748b', margin:0}}>
+                        <p className="sn-handwritten" style={{textDecoration:'line-through', color:'#64748b', margin:0}}>
                           {task.text}
                         </p>
                       </div>
-                      <div className="sn-completed-actions">
+                      <div className="sn-completed-actions" style={{marginTop:'1.5rem'}}>
                         <div style={{display:'flex', flexDirection:'column', gap:'0.25rem'}}>
-                           <span className="sn-timestamp" style={{border:'none', margin:0, padding:0}}>Created: {task.createdAt}</span>
-                           <span className="sn-timestamp" style={{border:'none', margin:0, padding:0, color:'#3b82f6'}}>Finished: {task.completedAt}</span>
+                           <span className="sn-timestamp" style={{border:'none', margin:0, padding:0}}>CREATED: {task.createdAt}</span>
+                           <span className="sn-timestamp" style={{border:'none', margin:0, padding:0, color:'#3b82f6'}}>FINISHED: {task.completedAt}</span>
                         </div>
-                        <div style={{display:'flex', gap:'0.5rem'}}>
+                        <div style={{display:'flex', gap:'0.25rem'}}>
                           <button onClick={() => handleRestoreTask(task)} className="sn-action-btn restore" title="Restore">↻</button>
                           <button onClick={() => confirmDelete(task, 'completed')} className="sn-action-btn delete" title="Delete permanently">🗑️</button>
                         </div>
