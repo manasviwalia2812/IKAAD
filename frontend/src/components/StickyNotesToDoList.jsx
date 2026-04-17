@@ -119,19 +119,19 @@ const StickyNotesToDoList = () => {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Just+Another+Hand&display=swap');
         
         .sn-wrapper {
-          min-height: calc(100vh - 4rem);
+          min-height: calc(100vh - 64px);
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           color: #1e293b;
           background-color: #f8fafc;
           background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
           background-size: 24px 24px;
-          padding-bottom: 4rem;
+          padding-bottom: 64px;
         }
         
         .sn-container {
           max-width: 1300px;
           margin: 0 auto;
-          padding: 2rem;
+          padding: 32px;
         }
 
         .sn-header {
@@ -140,37 +140,37 @@ const StickyNotesToDoList = () => {
           justify-content: space-between;
           align-items: center;
           background: linear-gradient(135deg, #eff6ff, #f0fdfa);
-          padding: 1.5rem 2rem;
-          border-radius: 1.5rem;
+          padding: 24px 32px;
+          border-radius: 24px;
           box-shadow: 0 4px 12px rgba(0,0,0,0.04);
           border: 1px solid rgba(255,255,255,0.8);
-          margin-bottom: 3.5rem;
+          margin-bottom: 56px;
           flex-wrap: wrap; 
-          gap: 1.5rem;
+          gap: 24px;
         }
 
         .sn-title {
-          font-size: 2.25rem;
+          font-size: 36px;
           font-weight: 700;
           margin: 0;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 12px;
           letter-spacing: -0.02em;
         }
 
         .sn-celebration-btn {
           background: linear-gradient(135deg, #a855f7, #3b82f6);
           color: white;
-          padding: 0.875rem 1.75rem;
+          padding: 14px 28px;
           border-radius: 999px;
-          font-size: 1.1rem;
+          font-size: 18px;
           font-weight: 600;
           border: none;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 12px;
           box-shadow: 0 4px 14px rgba(168,85,247,0.4);
           transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -182,11 +182,11 @@ const StickyNotesToDoList = () => {
         .sn-badge {
           background: white;
           color: #9333ea;
-          font-size: 0.85rem;
+          font-size: 14px;
           font-weight: 700;
-          padding: 0.15rem 0.6rem;
+          padding: 2px 10px;
           border-radius: 999px;
-          margin-left: 0.5rem;
+          margin-left: 8px;
         }
 
         .sn-form {
@@ -194,9 +194,9 @@ const StickyNotesToDoList = () => {
           flex-direction: row;
           justify-content: center;
           align-items: center;
-          gap: 2rem; 
+          gap: 32px; 
           max-width: 900px;
-          margin: 0 auto 4rem auto;
+          margin: 0 auto 64px auto;
           flex-wrap: wrap;
         }
 
@@ -207,9 +207,9 @@ const StickyNotesToDoList = () => {
 
         .sn-input {
           width: 100%;
-          padding: 1.1rem 1.5rem;
+          padding: 18px 24px;
           border-radius: 999px;
-          font-size: 1.1rem;
+          font-size: 18px;
           font-family: inherit;
           border: 1px solid #cbd5e1;
           box-shadow: 0 4px 6px rgba(0,0,0,0.02);
@@ -225,9 +225,9 @@ const StickyNotesToDoList = () => {
         .sn-add-btn {
           background: linear-gradient(135deg, #a855f7, #3b82f6);
           color: white;
-          padding: 1.1rem 2.25rem;
+          padding: 18px 36px;
           border-radius: 999px;
-          font-size: 1.1rem;
+          font-size: 18px;
           font-weight: 600;
           border: none;
           cursor: pointer;
@@ -236,7 +236,7 @@ const StickyNotesToDoList = () => {
           white-space: nowrap;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 8px;
         }
         .sn-add-btn:hover:not(:disabled) {
           transform: translateY(-2px) scale(1.02);
@@ -252,7 +252,7 @@ const StickyNotesToDoList = () => {
         .sn-grid {
           display: flex;
           flex-wrap: wrap;
-          gap: 3rem; 
+          gap: 48px; 
           justify-content: center;
           align-items: flex-start;
         }
@@ -262,8 +262,8 @@ const StickyNotesToDoList = () => {
           min-height: 280px; 
           height: auto; 
           flex-shrink: 0;
-          padding: 1.5rem;
-          border-radius: 1.25rem;
+          padding: 24px;
+          border-radius: 20px;
           display: flex;
           flex-direction: column;
           position: relative;
@@ -290,7 +290,7 @@ const StickyNotesToDoList = () => {
           align-items: center;
           justify-content: center;
           transition: all 0.2s;
-          margin-top: 0.4rem;
+          margin-top: 6px;
         }
         .sn-checkbox:hover {
           border-color: #4ade80;
@@ -303,12 +303,12 @@ const StickyNotesToDoList = () => {
 
         .sn-handwritten {
           font-family: "Just Another Hand", cursive;
-          font-size: 3rem;
+          font-size: 48px;
           line-height: 0.95;
           letter-spacing: 0.5px;
           color: #1e293b;
           margin: 0;
-          padding-top: 0.2rem;
+          padding-top: 3px;
           word-break: break-word;
           transition: all 0.3s;
         }
@@ -317,8 +317,8 @@ const StickyNotesToDoList = () => {
           width: 100%;
           background: rgba(255,255,255,0.5);
           border: 1px dashed #cbd5e1;
-          border-radius: 0.5rem;
-          padding: 0.5rem;
+          border-radius: 8px;
+          padding: 8px;
           outline: none;
           resize: none;
           box-sizing: border-box;
@@ -330,9 +330,9 @@ const StickyNotesToDoList = () => {
 
         .sn-edit-action {
           font-family: inherit;
-          font-size: 0.8rem;
+          font-size: 13px;
           font-weight: 600;
-          padding: 0.3rem 0.75rem;
+          padding: 5px 12px;
           border-radius: 999px;
           cursor: pointer;
           border: none;
@@ -344,7 +344,7 @@ const StickyNotesToDoList = () => {
         .sn-edit-action.save:hover { background: #2563eb; }
 
         .sn-timestamp {
-          font-size: 0.75rem;
+          font-size: 12px;
           font-weight: 600;
           color: #64748b;
           text-transform: uppercase;
@@ -372,7 +372,7 @@ const StickyNotesToDoList = () => {
           align-items: center;
           justify-content: center;
           z-index: 100;
-          padding: 1.5rem;
+          padding: 24px;
           animation: fade-in 0.2s ease-out;
         }
         @keyframes fade-in {
@@ -385,7 +385,7 @@ const StickyNotesToDoList = () => {
           width: 100%;
           max-width: 900px;
           max-height: 85vh;
-          border-radius: 1.5rem;
+          border-radius: 24px;
           display: flex;
           flex-direction: column;
           box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
@@ -397,22 +397,22 @@ const StickyNotesToDoList = () => {
         }
 
         .sn-modal-header {
-          padding: 1.5rem 2rem;
+          padding: 24px 32px;
           border-bottom: 1px solid #e2e8f0;
           display: flex;
           justify-content: space-between;
           align-items: center;
           background: #f8fafc;
-          border-top-left-radius: 1.5rem;
-          border-top-right-radius: 1.5rem;
+          border-top-left-radius: 24px;
+          border-top-right-radius: 24px;
         }
         .sn-modal-title {
-          font-size: 1.75rem;
+          font-size: 28px;
           font-weight: 700;
           margin: 0;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 12px;
         }
 
         .sn-close-btn {
@@ -421,7 +421,7 @@ const StickyNotesToDoList = () => {
           border-radius: 50%;
           border: none;
           background: transparent;
-          font-size: 1.25rem;
+          font-size: 20px;
           color: #64748b;
           cursor: pointer;
           display: flex;
@@ -435,15 +435,15 @@ const StickyNotesToDoList = () => {
         }
 
         .sn-modal-body {
-          padding: 2rem;
+          padding: 32px;
           overflow-y: auto;
           flex-grow: 1;
         }
 
         .sn-completed-card {
           background: #ffffff;
-          padding: 1.5rem;
-          border-radius: 1rem;
+          padding: 24px;
+          border-radius: 16px;
           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
           border: 1px solid #f1f5f9;
           display: flex;
@@ -460,17 +460,17 @@ const StickyNotesToDoList = () => {
           display: flex;
           justify-content: space-between;
           align-items: flex-end;
-          margin-top: 1rem;
-          padding-top: 1rem;
+          margin-top: 16px;
+          padding-top: 16px;
           border-top: 1px solid rgba(0,0,0,0.05);
         }
         .sn-action-btn {
           background: transparent;
           border: none;
-          padding: 0.5rem;
-          border-radius: 0.5rem;
+          padding: 8px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 1.25rem;
+          font-size: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -514,16 +514,16 @@ const StickyNotesToDoList = () => {
             />
           </div>
           <button type="submit" disabled={!newTaskText.trim()} className="sn-add-btn">
-            <span style={{fontSize:'1.25rem', fontWeight:'400'}}>+</span> Add Task
+            <span style={{fontSize:'20px', fontWeight:'400'}}>+</span> Add Task
           </button>
         </form>
 
         {/* Notes Grid Display */}
         <div className="sn-grid">
           {todos.length === 0 ? (
-            <div style={{textAlign: 'center', margin: '4rem 0', opacity: 0.6}}>
-              <span style={{fontSize: '4rem', display: 'block', marginBottom: '1rem'}}>🍃</span>
-              <p style={{fontSize: '1.25rem', color: '#64748b'}}>Your board is empty. Add a task to get started!</p>
+            <div style={{textAlign: 'center', margin: '64px 0', opacity: 0.6}}>
+              <span style={{fontSize: '64px', display: 'block', marginBottom: '16px'}}>🍃</span>
+              <p style={{fontSize: '20px', color: '#64748b'}}>Your board is empty. Add a task to get started!</p>
             </div>
           ) : (
             todos.map((task) => {
@@ -542,7 +542,7 @@ const StickyNotesToDoList = () => {
                   onMouseLeave={(e) => e.currentTarget.style.transform = `rotate(${task.rotation}) scale(1) translateY(0)`}
                   ref={el => { if(el && !isCompleting && el.style.transform === "") el.style.transform = `rotate(${task.rotation})`; }}
                 >
-                  <div style={{display:'flex', gap:'1rem', alignItems:'flex-start', flexGrow: 1}}>
+                  <div style={{display:'flex', gap:'16px', alignItems:'flex-start', flexGrow: 1}}>
                     <button 
                       onClick={() => !isEditing && handleCompleteTask(task)}
                       className={`sn-checkbox ${isCompleting ? 'sn-checkbox-checking' : ''}`}
@@ -554,7 +554,7 @@ const StickyNotesToDoList = () => {
                     </button>
                     
                     {isEditing ? (
-                      <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+                      <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px'}}>
                         <textarea
                           autoFocus
                           value={editTaskText}
@@ -562,7 +562,7 @@ const StickyNotesToDoList = () => {
                           className="sn-handwritten sn-textarea"
                           rows={3}
                         />
-                        <div style={{display: 'flex', gap: '0.5rem', justifyContent: 'flex-end'}}>
+                        <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
                           <button onClick={cancelEditTask} className="sn-edit-action cancel">Cancel</button>
                           <button onClick={() => saveEditTask(task.id)} className="sn-edit-action save">Save</button>
                         </div>
@@ -574,12 +574,12 @@ const StickyNotesToDoList = () => {
                     )}
                   </div>
 
-                  <div className="sn-completed-actions" style={{marginTop:'1.5rem'}}>
-                    <div style={{display:'flex', flexDirection:'column', gap:'0.25rem'}}>
+                  <div className="sn-completed-actions" style={{marginTop:'24px'}}>
+                    <div style={{display:'flex', flexDirection:'column', gap:'4px'}}>
                        <span className="sn-timestamp" style={{border:'none', margin:0, padding:0}}>CREATED: {task.createdAt}</span>
                     </div>
                     {!isEditing && (
-                      <div style={{display:'flex', gap:'0.25rem'}}>
+                      <div style={{display:'flex', gap:'4px'}}>
                         <button onClick={() => startEditTask(task)} className="sn-action-btn edit" title="Edit text">✏️</button>
                         <button onClick={() => confirmDelete(task, 'active')} className="sn-action-btn delete" title="Delete">🗑️</button>
                       </div>
@@ -603,28 +603,28 @@ const StickyNotesToDoList = () => {
             
             <div className="sn-modal-body">
               {completedTasks.length === 0 ? (
-                <div style={{textAlign:'center', padding:'4rem 0', opacity:'0.6'}}>
-                  <span style={{fontSize:'4rem', display:'block', marginBottom:'1rem', filter:'grayscale(1)'}}>🏆</span>
-                  <p style={{fontSize:'1.1rem', color:'#64748b'}}>No completed tasks yet. Keep going!</p>
+                <div style={{textAlign:'center', padding:'64px 0', opacity:'0.6'}}>
+                  <span style={{fontSize:'64px', display:'block', marginBottom:'16px', filter:'grayscale(1)'}}>🏆</span>
+                  <p style={{fontSize:'18px', color:'#64748b'}}>No completed tasks yet. Keep going!</p>
                 </div>
               ) : (
-                <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:'1.5rem'}}>
+                <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:'24px'}}>
                   {completedTasks.map(task => (
                     <div key={task.id} className="sn-completed-card">
-                      <div style={{display:'flex', gap:'1rem', alignItems:'flex-start'}}>
-                        <div style={{width:'26px', height:'26px', borderRadius:'50%', background:'#dcfce3', color:'#16a34a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:'0', marginTop:'0.4rem'}}>
+                      <div style={{display:'flex', gap:'16px', alignItems:'flex-start'}}>
+                        <div style={{width:'26px', height:'26px', borderRadius:'50%', background:'#dcfce3', color:'#16a34a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:'0', marginTop:'6px'}}>
                           <span style={{fontSize:'12px', fontWeight:'bold'}}>✓</span>
                         </div>
                         <p className="sn-handwritten" style={{textDecoration:'line-through', color:'#64748b', margin:0}}>
                           {task.text}
                         </p>
                       </div>
-                      <div className="sn-completed-actions" style={{marginTop:'1.5rem'}}>
-                        <div style={{display:'flex', flexDirection:'column', gap:'0.25rem'}}>
+                      <div className="sn-completed-actions" style={{marginTop:'24px'}}>
+                        <div style={{display:'flex', flexDirection:'column', gap:'4px'}}>
                            <span className="sn-timestamp" style={{border:'none', margin:0, padding:0}}>CREATED: {task.createdAt}</span>
                            <span className="sn-timestamp" style={{border:'none', margin:0, padding:0, color:'#3b82f6'}}>FINISHED: {task.completedAt}</span>
                         </div>
-                        <div style={{display:'flex', gap:'0.25rem'}}>
+                        <div style={{display:'flex', gap:'4px'}}>
                           <button onClick={() => handleRestoreTask(task)} className="sn-action-btn restore" title="Restore">↻</button>
                           <button onClick={() => confirmDelete(task, 'completed')} className="sn-action-btn delete" title="Delete permanently">🗑️</button>
                         </div>
@@ -641,22 +641,22 @@ const StickyNotesToDoList = () => {
       {/* Delete Confirmation Modal */}
       {taskToDelete && (
         <div className="sn-modal-overlay" style={{zIndex: 200}}>
-          <div className="sn-modal" style={{maxWidth: '400px', padding: '2rem', textAlign: 'center'}}>
-            <span style={{fontSize:'3.5rem', marginBottom:'1rem', display:'block'}}>⚠️</span>
-            <h3 style={{fontSize:'1.5rem', margin:'0 0 1rem 0', color:'#1e293b'}}>Delete Task?</h3>
-            <p style={{color:'#64748b', marginBottom:'2rem'}}>
+          <div className="sn-modal" style={{maxWidth: '400px', padding: '32px', textAlign: 'center'}}>
+            <span style={{fontSize:'56px', marginBottom:'16px', display:'block'}}>⚠️</span>
+            <h3 style={{fontSize:'24px', margin:'0 0 16px 0', color:'#1e293b'}}>Delete Task?</h3>
+            <p style={{color:'#64748b', marginBottom:'32px'}}>
               Are you sure you want to throw this away permanently?
             </p>
-            <div style={{display:'flex', gap:'1rem'}}>
+            <div style={{display:'flex', gap:'16px'}}>
               <button 
                 onClick={() => { setTaskToDelete(null); setDeleteType(null); }}
-                style={{flex:1, padding:'0.75rem', borderRadius:'0.5rem', border:'none', background:'#f1f5f9', color:'#475569', fontWeight:'600', cursor:'pointer'}}
+                style={{flex:1, padding:'12px', borderRadius:'8px', border:'none', background:'#f1f5f9', color:'#475569', fontWeight:'600', cursor:'pointer'}}
               >
                 Cancel
               </button>
               <button 
                 onClick={executeDelete}
-                style={{flex:1, padding:'0.75rem', borderRadius:'0.5rem', border:'none', background:'#ef4444', color:'white', fontWeight:'600', cursor:'pointer'}}
+                style={{flex:1, padding:'12px', borderRadius:'8px', border:'none', background:'#ef4444', color:'white', fontWeight:'600', cursor:'pointer'}}
               >
                 Delete
               </button>
