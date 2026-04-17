@@ -15,7 +15,6 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# Build allowed origins: localhost for dev + production Vercel URL
 allowed_origins = [
     "http://localhost:3000",
     "http://localhost:5173",
@@ -23,17 +22,21 @@ allowed_origins = [
     "http://127.0.0.1:5173",
 ]
 
-# Add production frontend URL if set (e.g. https://ikaad.vercel.app)
 frontend_url = os.getenv("FRONTEND_URL")
 if frontend_url:
     allowed_origins.append(frontend_url)
+else:
+    # Warn loudly in logs so you never miss this again
+    print("WARNING: FRONTEND_URL env var not set. Production CORS will fail.")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # explicit OPTIONS
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=600,  # cache preflight for 10 min
 )
 
 app.include_router(router)
